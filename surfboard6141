@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+use strict;
+use LWP::Simple;
+use Regexp::Common;
+
+#dev debug
+if ( defined $ARGV[0] and $ARGV[0] eq "dump" ) {
+    require Data::Dumper;
+    print Data::Dumper::Dumper(&get_data);
+    exit 0;
+}
+
+# Autoconf action
+if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" ) {
+    my $ret;
+    if (! eval "require LWP::Simple;") {
+        $ret .= "LWP::Simple not found ";
+    }
+    if (! eval "require Regexp::Common;") {
+        $ret .= "Regexp::Common not found ";
+    }
+    if ($ret) {
+        print "no ($ret)\n";
+        exit 0;
+    } else {
+        print "yes\n";
+        exit 0;
+    }
+}
+
+# Config action
+if ( defined $ARGV[0] and $ARGV[0] eq "config" ) {
+    my $data = get_data();
+    print <<'END_CONFIG';
+
+multigraph surfboard6141_upstream_power
+graph_title SurfBoard 6141 Upstream Power
+graph_category surfboard6141
+graph_info Upstream Power
+graph_vlabel dB
+
+END_CONFIG
+    my $n = 0;
+    foreach my $chan_id ( @{$data->{usChannelsArray}} ) {
+        next if ( @{$data->{usRangeArray}}[$n] ne 'Success' );
+        print "uspwr$chan_id.info Channel $chan_id power (dB-mV)\n";
+        print "uspwr$chan_id.label Channel $chan_id Power\n";
+        print "uspwr$chan_id.draw LINE2\n";
+        $n++;
+    }
+    print <<'END_CONFIG';
+
+multigraph surfboard6141_downstream_snr
+graph_title SurfBoard 6141 Downstream SNR
+graph_category surfboard6141
+graph_info Downstream SNR
+graph_vlabel dB
+
+END_CONFIG
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dssnr$chan_id.info Channel $chan_id signal-to-noise ratio (dB)\n";
+        print "dssnr$chan_id.label Channel $chan_id SNR\n";
+        print "dssnr$chan_id.draw LINE2\n";
+    }
+    print <<'END_CONFIG';
+
+multigraph surfboard6141_downstream_power
+graph_title SurfBoard 6141 Downstream Power
+graph_category surfboard6141
+graph_info Downstream Power
+graph_vlabel dB-mV
+
+END_CONFIG
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dspwr$chan_id.info Channel $chan_id power (dB-mV)\n";
+        print "dspwr$chan_id.label Channel $chan_id Power\n";
+        print "dspwr$chan_id.draw LINE2\n";
+    }
+    print <<'END_CONFIG';
+
+multigraph surfboard6141_downstream_codewords
+graph_title SurfBoard 6141 Downstream Codewords
+graph_category surfboard6141
+graph_info Downstream Codewords
+graph_vlabel Codes/sec
+
+END_CONFIG
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dscodewordsgood$chan_id.info Channel $chan_id good (Codes/sec)\n";
+        print "dscodewordsgood$chan_id.label Channel $chan_id good\n";
+        print "dscodewordsgood$chan_id.type DERIVE\n";
+        print "dscodewordsgood$chan_id.draw LINE2\n";
+        print "dscodewordsfixed$chan_id.info Channel $chan_id error (corrected) (Codes/sec)\n";
+        print "dscodewordsfixed$chan_id.label Channel $chan_id error (corrected)\n";
+        print "dscodewordsfixed$chan_id.type DERIVE\n";
+        print "dscodewordsfixed$chan_id.draw LINE2\n";
+        print "dscodewordsbad$chan_id.info Channel $chan_id error (uncorrected) (Codes/sec)\n";
+        print "dscodewordsbad$chan_id.label Channel $chan_id error (uncorrected)\n";
+        print "dscodewordsbad$chan_id.draw LINE2\n";
+    }
+    print <<'END_CONFIG';
+
+multigraph surfboard6141_bonding
+graph_title SurfBoard 6141 Bonding Status
+graph_category surfboard6141
+graph_info Bonding Status
+graph_vlabel # of Channels
+
+END_CONFIG
+    print "dsnum.label Bonded downstream channels\n";
+    print "dsnum.info Bonded downstream channels\n";
+    print "dsnum.draw LINE2\n";
+    print "usnum.label Bonded upstream channels\n";
+    print "usnum.info Bonded upstream channels\n";
+    print "usnum.draw LINE2\n";
+exit 0;
+}
+
+## Default action (get data) when no args are present
+if (!defined $ARGV[0]) {
+    my $n = 0;
+    my $data = get_data();
+    print "multigraph surfboard6141_upstream_power\n";
+    foreach my $chan_id ( @{$data->{usChannelsArray}} ) {
+        next if ( @{$data->{usRangeArray}}[$n] ne 'Success' );
+        print "uspwr$chan_id.value ".@{$data->{usPowerArray}}[$n]."\n";
+        $n++;
+    }
+    my $usnum = $n;
+    $n = 0;
+    print "multigraph surfboard6141_downstream_power\n";
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dspwr$chan_id.value ".@{$data->{dsPowerArray}}[$n]."\n";
+        $n++;
+    }
+    $n = 0;
+    print "multigraph surfboard6141_downstream_snr\n";
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dssnr$chan_id.value ".@{$data->{dsSnrArray}}[$n]."\n";
+        $n++;
+    }
+    $n = 0;
+    print "multigraph surfboard6141_downstream_codewords\n";
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
+        print "dscodewordsgood$chan_id.value ".@{$data->{dsCodewordsGoodArray}}[$n]."\n";
+        print "dscodewordsfixed$chan_id.value ".@{$data->{dsCodewordsFixedArray}}[$n]."\n";
+        print "dscodewordsbad$chan_id.value ".@{$data->{dsCodewordsBadArray}}[$n]."\n";
+        $n++;
+    }
+    my $dsnum = $n;
+    print "multigraph surfboard6141_bonding\n";
+    print "dsnum.value ".$dsnum."\n";
+    print "usnum.value ".$usnum."\n";
+}
+
+
+sub get_data() {
+    my $data;
+    my $content = get("http://192.168.100.1/cmSignalData.htm") or die "Error getting status";
+    $content =~ s/\R//g; # strip newlines
+    #downstream channels:
+    @{$data->{dsChannelsArray}} = (($content =~ m/Downstream.+?Channel ID(.*).+Frequency.+Downstream Modulation/)[0] =~ m/$RE{num}{real}/g);
+    #downstream SNR
+    @{$data->{dsSnrArray}} = (($content =~ /Downstream.+?Signal to Noise Ratio(.*)Downstream Modulation/g)[0] =~ m/$RE{num}{real}/g);
+    #downstream Power
+    @{$data->{dsPowerArray}} = (($content =~ /Downstream.+?new reading.+?<TD>(.*?)\/TR/g)[0] =~ m/$RE{num}{real}/g);
+    #upstream channels
+    @{$data->{usChannelsArray}} = (($content =~ /Upstream.+?Channel ID(.*?)Frequency/g)[0] =~ m/$RE{num}{real}/g);
+    #upstream Power
+    @{$data->{usPowerArray}} = (($content =~ /Upstream.+?Power Level(.*?)Upstream Modulation/g)[0] =~ m/$RE{num}{real}/g);
+    #downstream good codewords
+    @{$data->{dsCodewordsGoodArray}} = (($content =~ /Signal Stats.+?Total Unerrored Codewords(.*?)Total Correctable Codewords/g)[0] =~ m/$RE{num}{real}/g);
+    #downstream corrected codewords
+    @{$data->{dsCodewordsFixedArray}} = (($content =~ /Signal Stats.+?Total Correctable Codewords(.*?)Total Uncorrectable Codewords/g)[0] =~ m/$RE{num}{real}/g);
+    #downstream corrected codewords
+    @{$data->{dsCodewordsBadArray}} = (($content =~ /Signal Stats.+?Total Uncorrectable Codewords(.*?)\/TR/g)[0] =~ m/$RE{num}{real}/g);
+    #upstream ranging status
+    @{$data->{usRangeArray}} = (($content =~ /Upstream.+?Ranging Status(.*?)\/TR/g)[0] =~ m/([a-zA-Z]+)\&/g);
+    return $data;
+}
+exit;
