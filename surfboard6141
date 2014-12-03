@@ -10,24 +10,6 @@ if ( defined $ARGV[0] and $ARGV[0] eq "dump" ) {
     exit 0;
 }
 
-# Autoconf action
-if ( defined $ARGV[0] and $ARGV[0] eq "autoconf" ) {
-    my $ret;
-    if (! eval "require LWP::Simple;") {
-        $ret .= "LWP::Simple not found ";
-    }
-    if (! eval "require Regexp::Common;") {
-        $ret .= "Regexp::Common not found ";
-    }
-    if ($ret) {
-        print "no ($ret)\n";
-        exit 0;
-    } else {
-        print "yes\n";
-        exit 0;
-    }
-}
-
 # Config action
 if ( defined $ARGV[0] and $ARGV[0] eq "config" ) {
     my $data = get_data();
