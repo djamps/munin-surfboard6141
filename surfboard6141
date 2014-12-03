@@ -94,13 +94,17 @@ END_CONFIG
         print "dscodewordsgood$chan_id.info Channel $chan_id good (Codes/sec)\n";
         print "dscodewordsgood$chan_id.label Channel $chan_id good\n";
         print "dscodewordsgood$chan_id.type DERIVE\n";
+        print "dscodewordsgood$chan_id.min 0\n";
         print "dscodewordsgood$chan_id.draw LINE2\n";
         print "dscodewordsfixed$chan_id.info Channel $chan_id error (corrected) (Codes/sec)\n";
         print "dscodewordsfixed$chan_id.label Channel $chan_id error (corrected)\n";
         print "dscodewordsfixed$chan_id.type DERIVE\n";
+        print "dscodewordsfixed$chan_id.min 0\n";
         print "dscodewordsfixed$chan_id.draw LINE2\n";
         print "dscodewordsbad$chan_id.info Channel $chan_id error (uncorrected) (Codes/sec)\n";
         print "dscodewordsbad$chan_id.label Channel $chan_id error (uncorrected)\n";
+        print "dscodewordsbad$chan_id.type DERIVE\n";
+        print "dscodewordsbad$chan_id.min 0\n";
         print "dscodewordsbad$chan_id.draw LINE2\n";
     }
     print <<'END_CONFIG';
