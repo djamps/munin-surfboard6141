@@ -4,9 +4,8 @@ This is a Munin plugin which monitors the following data on a Motorola Surfboard
 
 1. Upstream/Downstream power
 2. Upstream/Downstream bonding status
-3. Downstream power
-4. Downstream SNR
-5. Downstream Codewords/sec (good, fixed, and bad)
+3. Downstream SNR
+4. Downstream Codewords/sec (good, fixed, and bad)
 
 # Requirements / Configuration
 
