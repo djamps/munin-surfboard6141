@@ -177,7 +177,7 @@ sub get_data() {
     @{$data->{dsCodewordsGoodArray}} = (($content =~ /Signal Stats.+?Total Unerrored Codewords(.*?)Total Correctable Codewords/g)[0] =~ m/$RE{num}{real}/g);
     #downstream corrected codewords
     @{$data->{dsCodewordsFixedArray}} = (($content =~ /Signal Stats.+?Total Correctable Codewords(.*?)Total Uncorrectable Codewords/g)[0] =~ m/$RE{num}{real}/g);
-    #downstream corrected codewords
+    #downstream uncorrected codewords
     @{$data->{dsCodewordsBadArray}} = (($content =~ /Signal Stats.+?Total Uncorrectable Codewords(.*?)\/TR/g)[0] =~ m/$RE{num}{real}/g);
     #upstream ranging status
     @{$data->{usRangeArray}} = (($content =~ /Upstream.+?Ranging Status(.*?)\/TR/g)[0] =~ m/([a-zA-Z]+)\&/g);
