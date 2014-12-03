@@ -42,7 +42,7 @@ multigraph surfboard6141_upstream_power
 graph_title SurfBoard 6141 Upstream Power
 graph_category surfboard6141
 graph_info Upstream Power
-graph_vlabel dB
+graph_vlabel dB-mV
 
 END_CONFIG
     my $n = 0;
