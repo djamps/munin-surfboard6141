@@ -24,7 +24,6 @@
 
 use strict;
 use LWP::Simple;
-use Regexp::Common;
 
 #dev debug
 if ( defined $ARGV[0] and $ARGV[0] eq "dump" ) {
@@ -50,6 +49,8 @@ END_CONFIG
         next if ( @{$data->{usRangeArray}}[$n] ne 'Success' );
         print "uspwr$chan_id.info Channel $chan_id power (dB-mV)\n";
         print "uspwr$chan_id.label Channel $chan_id Power\n";
+        print "uspwr$chan_id.warning 41:48\n";
+        print "uspwr$chan_id.critical 39:50\n";
         print "uspwr$chan_id.draw LINE2\n";
         $n++;
     }
@@ -65,6 +66,8 @@ END_CONFIG
     foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
         print "dssnr$chan_id.info Channel $chan_id signal-to-noise ratio (dB)\n";
         print "dssnr$chan_id.label Channel $chan_id SNR\n";
+        print "dssnr$chan_id.warning 34:\n";
+        print "dssnr$chan_id.critical 30:\n";
         print "dssnr$chan_id.draw LINE2\n";
     }
     print <<'END_CONFIG';
@@ -79,6 +82,8 @@ END_CONFIG
     foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
         print "dspwr$chan_id.info Channel $chan_id power (dB-mV)\n";
         print "dspwr$chan_id.label Channel $chan_id Power\n";
+        print "dspwr$chan_id.warning -12:12\n";
+        print "dspwr$chan_id.critical -14:14\n";
         print "dspwr$chan_id.draw LINE2\n";
     }
     print <<'END_CONFIG';
@@ -130,10 +135,14 @@ END_CONFIG
     print "dsnum.label Bonded downstream channels\n";
     print "dsnum.info Bonded downstream channels\n";
     print "dsnum.max 8\n";
+    print "dsnum.warning 8:\n";
+    print "dsnum.critical 1:\n";
     print "dsnum.draw LINE2\n";
     print "usnum.label Bonded upstream channels\n";
     print "usnum.info Bonded upstream channels\n";
     print "usnum.max 4\n";
+    print "usnum.warning 4:\n";
+    print "usnum.critical 1:\n";
     print "usnum.draw LINE2\n";
 exit 0;
 }
@@ -186,21 +195,21 @@ sub get_data() {
     my $content = get("http://192.168.100.1/cmSignalData.htm") or die "Error getting status";
     $content =~ s/\R//g; # strip newlines
     #downstream channels:
-    @{$data->{dsChannelsArray}} = (($content =~ m/Downstream.+?Channel ID(.*).+Frequency.+Downstream Modulation/)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsChannelsArray}} = (($content =~ m/Downstream.+?Channel ID(.*).+Frequency.+Downstream Modulation/)[0] =~ m/-?\d+/g);
     #downstream SNR
-    @{$data->{dsSnrArray}} = (($content =~ /Downstream.+?Signal to Noise Ratio(.*)Downstream Modulation/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsSnrArray}} = (($content =~ /Downstream.+?Signal to Noise Ratio(.*)Downstream Modulation/g)[0] =~ m/-?\d+/g);
     #downstream Power
-    @{$data->{dsPowerArray}} = (($content =~ /Downstream.+?new reading.+?<TD>(.*?)\/TR/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsPowerArray}} = (($content =~ /Downstream.+?new reading.+?<TD>(.*?)\/TR/g)[0] =~ m/-?\d+/g);
     #upstream channels
-    @{$data->{usChannelsArray}} = (($content =~ /Upstream.+?Channel ID(.*?)Frequency/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{usChannelsArray}} = (($content =~ /Upstream.+?Channel ID(.*?)Frequency/g)[0] =~ m/-?\d+/g);
     #upstream Power
-    @{$data->{usPowerArray}} = (($content =~ /Upstream.+?Power Level(.*?)Upstream Modulation/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{usPowerArray}} = (($content =~ /Upstream.+?Power Level(.*?)Upstream Modulation/g)[0] =~ m/-?\d+/g);
     #downstream good codewords
-    @{$data->{dsCodewordsGoodArray}} = (($content =~ /Signal Stats.+?Total Unerrored Codewords(.*?)Total Correctable Codewords/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsCodewordsGoodArray}} = (($content =~ /Signal Stats.+?Total Unerrored Codewords(.*?)Total Correctable Codewords/g)[0] =~ m/-?\d+/g);
     #downstream corrected codewords
-    @{$data->{dsCodewordsFixedArray}} = (($content =~ /Signal Stats.+?Total Correctable Codewords(.*?)Total Uncorrectable Codewords/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsCodewordsFixedArray}} = (($content =~ /Signal Stats.+?Total Correctable Codewords(.*?)Total Uncorrectable Codewords/g)[0] =~ m/-?\d+/g);
     #downstream uncorrected codewords
-    @{$data->{dsCodewordsBadArray}} = (($content =~ /Signal Stats.+?Total Uncorrectable Codewords(.*?)\/TR/g)[0] =~ m/$RE{num}{real}/g);
+    @{$data->{dsCodewordsBadArray}} = (($content =~ /Signal Stats.+?Total Uncorrectable Codewords(.*?)\/TR/g)[0] =~ m/-?\d+/g);
     #upstream ranging status
     @{$data->{usRangeArray}} = (($content =~ /Upstream.+?Ranging Status(.*?)\/TR/g)[0] =~ m/([a-zA-Z]+)\&/g);
     return $data;

@@ -1,6 +1,6 @@
 # Munin plugin for Surfboard 6141
 
-This is a Munin plugin which monitors the following data on a Motorola Surfboard 6141:
+This is a Munin plugin which monitors all available data on a Motorola Surfboard 6141:
 
 1. Upstream/Downstream power
 2. Upstream/Downstream bonding status
@@ -9,10 +9,9 @@ This is a Munin plugin which monitors the following data on a Motorola Surfboard
 
 # Requirements / Configuration
 
-Requires Perl and the following perl modules:
+Requires Perl and the following perl module:
 
-1. LWP::Simple
-2. Regexp::Common
+1. LWP::Simple (present by default on most Munin nodes)
 
 No special config is needed, this is a drop-in plugin.
 
