@@ -83,10 +83,10 @@ END_CONFIG
     }
     print <<'END_CONFIG';
 
-multigraph surfboard6141_downstream_codewords
-graph_title SurfBoard 6141 Downstream Codewords
+multigraph surfboard6141_downstream_codewords_good
+graph_title SurfBoard 6141 Downstream Good Codewords
 graph_category surfboard6141
-graph_info Downstream Codewords
+graph_info Downstream Good Codewords
 graph_vlabel Codes/sec
 
 END_CONFIG
@@ -96,6 +96,17 @@ END_CONFIG
         print "dscodewordsgood$chan_id.type DERIVE\n";
         print "dscodewordsgood$chan_id.min 0\n";
         print "dscodewordsgood$chan_id.draw LINE2\n";
+    }
+    print <<'END_CONFIG';
+    
+multigraph surfboard6141_downstream_codewords_bad
+graph_title SurfBoard 6141 Downstream Bad Codewords
+graph_category surfboard6141
+graph_info Downstream Codewords
+graph_vlabel Codes/sec
+
+END_CONFIG
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
         print "dscodewordsfixed$chan_id.info Channel $chan_id error (corrected) (Codes/sec)\n";
         print "dscodewordsfixed$chan_id.label Channel $chan_id error (corrected)\n";
         print "dscodewordsfixed$chan_id.type DERIVE\n";
@@ -151,9 +162,14 @@ if (!defined $ARGV[0]) {
         $n++;
     }
     $n = 0;
-    print "multigraph surfboard6141_downstream_codewords\n";
+    print "multigraph surfboard6141_downstream_codewords_good\n";
     foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
         print "dscodewordsgood$chan_id.value ".@{$data->{dsCodewordsGoodArray}}[$n]."\n";
+        $n++;
+    }
+    $n = 0;
+    print "multigraph surfboard6141_downstream_codewords_bad\n";
+    foreach my $chan_id ( @{$data->{dsChannelsArray}} ) {
         print "dscodewordsfixed$chan_id.value ".@{$data->{dsCodewordsFixedArray}}[$n]."\n";
         print "dscodewordsbad$chan_id.value ".@{$data->{dsCodewordsBadArray}}[$n]."\n";
         $n++;
