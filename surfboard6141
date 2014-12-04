@@ -118,11 +118,11 @@ graph_vlabel # of Channels
 END_CONFIG
     print "dsnum.label Bonded downstream channels\n";
     print "dsnum.info Bonded downstream channels\n";
-    print "dsnum.info.max 8\n";
+    print "dsnum.max 8\n";
     print "dsnum.draw LINE2\n";
     print "usnum.label Bonded upstream channels\n";
     print "usnum.info Bonded upstream channels\n";
-    print "usnum.info.max 4\n";
+    print "usnum.max 4\n";
     print "usnum.draw LINE2\n";
 exit 0;
 }
